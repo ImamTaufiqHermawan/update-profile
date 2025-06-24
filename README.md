@@ -1,4 +1,4 @@
-# Mini-Store: A Fullstack Next.js Project
+# Update-Profile: A Fullstack Next.js Project
 
 ## Project Description
 

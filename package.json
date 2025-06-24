@@ -24,10 +24,12 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/supertest": "^6.0.3",
     "eslint": "^9",
     "eslint-config-next": "15.3.4",
     "jest": "^30.0.2",
     "jest-environment-jsdom": "^30.0.2",
+    "supertest": "^7.1.1",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
