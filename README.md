@@ -1,4 +1,4 @@
-[![codecov](https://codecov.io/gh/<username>/<repository>/branch/main/graph/badge.svg?token=<token>)](https://codecov.io/gh/<username>/<repository>)
+[![codecov](https://codecov.io/github/ImamTaufiqHermawan/update-profile/graph/badge.svg?token=9OOW1HURQ4)](https://codecov.io/github/ImamTaufiqHermawan/update-profile)
 
 # Update-Profile: A Fullstack Next.js Project
 
