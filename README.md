@@ -1,3 +1,5 @@
+[![codecov](https://codecov.io/gh/<username>/<repository>/branch/main/graph/badge.svg?token=<token>)](https://codecov.io/gh/<username>/<repository>)
+
 # Update-Profile: A Fullstack Next.js Project
 
 ## Project Description
