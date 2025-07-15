@@ -12,7 +12,8 @@ A Next.js application demonstrating JWT authentication, database integration, an
 - **Indonesian User Data**: 1000 realistic Indonesian users
 - **Protected APIs**: JWT middleware for secure routes
 - **Legacy Code Examples**: Poor practices for refactoring demo
-- **Performance Benchmarking**: console.time for performance tracking
+- **Performance Monitoring**: Real-time execution time tracking and comparison
+- **Query Optimization Tools**: Before/after performance testing dashboard
 - **Complex Data Structure**: Multiple tables with relationships
 - **Data Quality Issues**: NULL and DUPLICATE data for ETL practice
 - **User Profile Management**: Complete profile with address, phone, birth date
@@ -343,11 +344,70 @@ WHERE user_divisions.division_name = 'Marketing'
    - **Division Filter**: Use dropdown to filter users by division
    - **Performance**: Check console for timing information
 
-## 🔍 Performance Monitoring
+## 📊 Performance Monitoring & Testing
 
-The application includes performance tracking for refactoring practice:
+This project includes comprehensive performance monitoring tools for workshop practice. You can measure and compare query execution times before and after optimization.
 
-### Console Timing
+### Performance Dashboard
+
+Visit `/performance` to see:
+
+- Real-time execution time metrics
+- Before/after query comparisons
+- Performance improvement percentages
+- Detailed metrics with timestamps
+- Memory usage tracking
+
+### Performance Testing
+
+Visit `/performance-test` to:
+
+- Run bad queries (before optimization)
+- Run optimized queries (after optimization)
+- Compare execution times side-by-side
+- Test different optimization strategies
+- Export performance data
+
+### How to Use Performance Monitoring
+
+1. **Run Bad Queries First**:
+
+   ```bash
+   # Visit the users page and apply filters
+   # This will trigger the bad queries with performance monitoring
+   ```
+
+2. **Run Optimized Queries**:
+
+   ```bash
+   # Use the performance test page to run optimized versions
+   # Compare execution times and improvements
+   ```
+
+3. **View Results**:
+   ```bash
+   # Check the performance dashboard for detailed metrics
+   # Export data for analysis
+   ```
+
+### Performance Monitoring Features
+
+- **Real-time Tracking**: Automatic execution time measurement
+- **Before/After Comparison**: Side-by-side performance analysis
+- **Multiple Query Types**: Test different optimization strategies
+- **Memory Usage**: Track memory consumption during queries
+- **Export Capability**: Download metrics for further analysis
+- **Visual Dashboard**: Easy-to-read performance comparisons
+
+### Workshop Practice Scenarios
+
+1. **Query Optimization**: Compare bad queries with optimized versions
+2. **Indexing Impact**: Test queries with and without proper indexes
+3. **Pagination Effects**: Measure performance with different LIMIT values
+4. **Join Optimization**: Compare different join strategies
+5. **JSON Query Performance**: Test JSON field querying efficiency
+
+### Console Timing (Legacy)
 
 - `Profile Get Execution`: Time to fetch user profile
 - `Profile Update Execution`: Time to update profile

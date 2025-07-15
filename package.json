@@ -10,13 +10,18 @@
     "test": "jest",
     "db-create": "node scripts/create-db.js",
     "db-drop": "node scripts/drop-db.js",
-    "db-reset": "npm run db-drop && npm run db-create"
+    "db-reset": "npm run db-drop && npm run db-create",
+    "perf-test": "node scripts/performance-test.js",
+    "monitoring": "bash scripts/start-monitoring.sh",
+    "monitoring-stop": "docker-compose -f docker-compose.monitoring.yml down"
   },
   "dependencies": {
     "@primer/css": "17.0.1",
     "jsonwebtoken": "^9.0.2",
     "next": "15.3.4",
+    "node-fetch": "^2.7.0",
     "pg": "^8.11.3",
+    "prom-client": "^15.1.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hot-toast": "^2.5.2"

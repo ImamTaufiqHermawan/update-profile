@@ -21,15 +21,21 @@ export default function LoginPage() {
       requireGuest("/users");
     }
   }, [loading, user, requireGuest]);
-
-  const validate = () => {
-    const newErrors: { email?: string; password?: string } = {};
+  
+  // Refactor this nested login logic to use a separate validation function
+  const validateInputs = (email: string, password: string) => {
+    const errors: { email?: string; password?: string } = {};
     if (!email) {
-      newErrors.email = "Email is required.";
+      errors.email = "Email is required.";
     }
     if (password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters.";
+      errors.password = "Password must be at least 6 characters.";
     }
+    return errors;
+  };
+
+  const validate = () => {
+    const newErrors = validateInputs(email, password);
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };

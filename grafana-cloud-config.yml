@@ -1,0 +1,97 @@
+# 🔧 **Grafana Cloud Configuration**
+# File ini berisi konfigurasi untuk integrasi dengan Grafana Cloud
+
+# 📊 **Prometheus Configuration**
+prometheus:
+  # 🎯 **Metrics Endpoint**
+  # Grafana Cloud akan scrape endpoint ini untuk mendapatkan metrics
+  metrics_endpoint: "http://localhost:3000/api/metrics"
+
+  # ⏱️ **Scrape Interval**
+  # Berapa sering Grafana Cloud mengambil metrics (dalam detik)
+  scrape_interval: 15s
+
+  # 🏷️ **Labels**
+  # Label yang akan ditambahkan ke semua metrics
+  labels:
+    application: "update-profile-app"
+    environment: "development"
+    version: "1.0.0"
+
+# 📈 **Metrics yang akan di-track**
+metrics:
+  # 🌐 **HTTP Metrics**
+  http:
+    - http_request_duration_seconds
+    - http_requests_total
+
+  # 🗄️ **Database Metrics**
+  database:
+    - database_query_duration_seconds
+    - database_queries_total
+
+  # 🔐 **Authentication Metrics**
+  auth:
+    - authentication_attempts_total
+    - active_users
+
+  # 💾 **System Metrics**
+  system:
+    - nodejs_memory_usage_bytes
+    - nodejs_process_uptime_seconds
+    - process_cpu_seconds_total
+    - process_resident_memory_bytes
+
+# 🎨 **Dashboard Configuration**
+dashboard:
+  # 📊 **Default Panels**
+  panels:
+    - title: "HTTP Request Rate"
+      type: "graph"
+      metrics: ["http_requests_total"]
+
+    - title: "Response Time"
+      type: "graph"
+      metrics: ["http_request_duration_seconds"]
+
+    - title: "Database Query Performance"
+      type: "graph"
+      metrics: ["database_query_duration_seconds"]
+
+    - title: "Authentication Attempts"
+      type: "graph"
+      metrics: ["authentication_attempts_total"]
+
+    - title: "Memory Usage"
+      type: "graph"
+      metrics: ["nodejs_memory_usage_bytes"]
+
+    - title: "Active Users"
+      type: "stat"
+      metrics: ["active_users"]
+
+# 🔔 **Alerting Rules**
+alerts:
+  # ⚠️ **High Response Time**
+  - name: "High Response Time"
+    condition: "http_request_duration_seconds > 2"
+    severity: "warning"
+    message: "Response time is above 2 seconds"
+
+  # 🚨 **High Error Rate**
+  - name: "High Error Rate"
+    condition: 'rate(http_requests_total{status_code=~"5.."}[5m]) > 0.1'
+    severity: "critical"
+    message: "Error rate is above 10%"
+
+  # 💾 **High Memory Usage**
+  - name: "High Memory Usage"
+    condition: 'nodejs_memory_usage_bytes{type="heapUsed"} > 500000000'
+    severity: "warning"
+    message: "Memory usage is above 500MB"
+
+# 📝 **Logging Configuration**
+logging:
+  level: "info"
+  format: "json"
+  output: "console"

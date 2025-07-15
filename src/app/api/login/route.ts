@@ -2,14 +2,23 @@ import { NextResponse } from "next/server";
 import { comparePassword } from "@/lib/crypto";
 import { executeQuery } from "@/lib/database";
 import { generateToken } from "@/lib/jwt";
+import {
+  trackHttpRequest,
+  trackAuthAttempt,
+  trackDatabaseQuery,
+} from "@/lib/metrics";
 
 export async function POST(request: Request) {
+  const startTime = Date.now();
   console.time("Login API Execution");
 
   try {
     const { email, password } = await request.json();
 
     if (!email || !password) {
+      const duration = (Date.now() - startTime) / 1000;
+      trackHttpRequest("POST", "/api/login", 400, duration);
+      trackAuthAttempt("failed", "login");
       console.timeEnd("Login API Execution");
       return NextResponse.json(
         { message: "Email and password are required." },
@@ -18,6 +27,9 @@ export async function POST(request: Request) {
     }
 
     if (password.length < 6) {
+      const duration = (Date.now() - startTime) / 1000;
+      trackHttpRequest("POST", "/api/login", 400, duration);
+      trackAuthAttempt("failed", "login");
       console.timeEnd("Login API Execution");
       return NextResponse.json(
         { message: "Password must be at least 6 characters." },
@@ -52,9 +64,15 @@ export async function POST(request: Request) {
       WHERE a.email = $1
     `;
 
+    const dbStartTime = Date.now();
     const result = await executeQuery(query, [email]);
+    const dbDuration = (Date.now() - dbStartTime) / 1000;
+    trackDatabaseQuery("SELECT", "auth_users_roles", dbDuration, "success");
 
     if (result.rows.length === 0) {
+      const duration = (Date.now() - startTime) / 1000;
+      trackHttpRequest("POST", "/api/login", 401, duration);
+      trackAuthAttempt("failed", "login");
       console.timeEnd("Login API Execution");
       return NextResponse.json(
         { message: "Invalid credentials." },
@@ -68,6 +86,9 @@ export async function POST(request: Request) {
     const isPasswordValid = comparePassword(password, user.password);
 
     if (!isPasswordValid) {
+      const duration = (Date.now() - startTime) / 1000;
+      trackHttpRequest("POST", "/api/login", 401, duration);
+      trackAuthAttempt("failed", "login");
       console.timeEnd("Login API Execution");
       return NextResponse.json(
         { message: "Invalid credentials." },
@@ -88,10 +109,17 @@ export async function POST(request: Request) {
     const token = generateToken(tokenPayload);
 
     // Log the login action
+    const logStartTime = Date.now();
     await executeQuery(
       "INSERT INTO user_logs (user_id, action) VALUES ($1, $2)",
       [user.user_id, "login"]
     );
+    const logDuration = (Date.now() - logStartTime) / 1000;
+    trackDatabaseQuery("INSERT", "user_logs", logDuration, "success");
+
+    const duration = (Date.now() - startTime) / 1000;
+    trackHttpRequest("POST", "/api/login", 200, duration);
+    trackAuthAttempt("success", "login");
 
     console.timeEnd("Login API Execution");
     return NextResponse.json({
@@ -115,6 +143,9 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     console.error("Login error:", error);
+    const duration = (Date.now() - startTime) / 1000;
+    trackHttpRequest("POST", "/api/login", 500, duration);
+    trackAuthAttempt("failed", "login");
     console.timeEnd("Login API Execution");
     return NextResponse.json(
       { message: "Internal server error." },

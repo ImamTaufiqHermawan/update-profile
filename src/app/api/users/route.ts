@@ -1,14 +1,16 @@
 import { NextResponse } from "next/server";
 import { executeQuery } from "@/lib/database";
+import { prometheusMetrics } from "@/lib/prometheus-metrics";
 
 export async function GET(request: Request) {
-  console.time("Users API Execution");
-
+  const startTime = performance.now();
+  const url = new URL(request.url);
+  const userAgent = request.headers.get('user-agent') || 'unknown';
+  
   try {
     // Bad practice: extract query params manually without proper parsing
-    const url = new URL(request.url);
     const divisionFilter = url.searchParams.get("division");
-
+    const queryType = url.searchParams.get("type") as 'before' | 'after' || 'before';
     // Bad practice: extremely inefficient query with multiple joins, subqueries, and no pagination
     let query = `
       SELECT 
@@ -76,6 +78,27 @@ export async function GET(request: Request) {
     query += ` ORDER BY u.created_at DESC`;
 
     const result = await executeQuery(query);
+    const endTime = performance.now();
+    const executionTime = endTime - startTime;
+    
+    // Record database query metrics
+    prometheusMetrics.recordDatabaseQuery(
+      'users_query',
+      executionTime,
+      result.rows?.length || 0,
+      'success',
+      queryType
+    );
+    
+    // Record API request metrics
+    prometheusMetrics.recordAPIRequest(
+      '/api/users',
+      'GET',
+      executionTime,
+      200,
+      JSON.stringify(result).length,
+      userAgent
+    );
 
     // Bad practice: processing all data in memory with complex transformations
     const users = result.rows.map((user: any) => {
@@ -149,6 +172,7 @@ export async function GET(request: Request) {
     });
 
     // Bad practice: additional processing after mapping
+    // Optimize this manual loop filter for performance
     const activeUsers = users.filter((u) => u.isActive);
     const seniorUsers = users.filter((u) => u.isSenior);
     const usersWithCompleteProfiles = users.filter(
@@ -159,23 +183,43 @@ export async function GET(request: Request) {
       return acc;
     }, {} as Record<string, number>);
 
-    console.timeEnd("Users API Execution");
-    return NextResponse.json({
-      users,
-      total: users.length,
-      activeUsers: activeUsers.length,
-      seniorUsers: seniorUsers.length,
-      usersWithCompleteProfiles: usersWithCompleteProfiles.length,
-      usersByDivision,
-      filteredBy: divisionFilter || "all",
-      message: "Users retrieved successfully",
-    });
-  } catch (error) {
-    console.error("Users API error:", error);
-    console.timeEnd("Users API Execution");
-    return NextResponse.json(
-      { message: "Internal server error." },
-      { status: 500 }
-    );
-  }
-}
+        return NextResponse.json({
+          users,
+          total: users.length,
+          activeUsers: activeUsers.length,
+          seniorUsers: seniorUsers.length,
+          usersWithCompleteProfiles: usersWithCompleteProfiles.length,
+          usersByDivision,
+          filteredBy: divisionFilter || "all",
+          message: "Users retrieved successfully",
+        });
+      } catch (error) {
+        console.error("Users API error:", error);
+        
+        // Record error metrics
+        const endTime = performance.now();
+        const executionTime = endTime - startTime;
+        
+        prometheusMetrics.recordDatabaseQuery(
+          'users_query',
+          executionTime,
+          0,
+          'error',
+          queryType
+        );
+        
+        prometheusMetrics.recordAPIRequest(
+          '/api/users',
+          'GET',
+          executionTime,
+          500,
+          0,
+          userAgent
+        );
+        
+        return NextResponse.json(
+          { message: "Internal server error." },
+          { status: 500 }
+        );
+      }
+    }
